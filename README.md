@@ -4,6 +4,9 @@
 - [Services](#lab-2-clone-trooper-service)
 - [Ingress](#lab-3-clone-trooper-ingress)
 - [Deployments part 2](#lab-4-deployments-part-2)
+  - deploy an upgrade and roll it back
+  - cleanup resources
+- [Helm](#lab-5-helm)
 
 ## Setup
 - confirm kubectl is installed `kubectl version` 
@@ -68,3 +71,31 @@
   - the rules show the host mapped to the backend Service (i.e the Service.yaml from lab-2)
 
 ## Lab 4: Deployments part 2
+- this lab will deploy an upgrade and roll it back 
+- `cd lab-4`, the deployment.yaml here has the image tag incremented to 0.2. 
+- Apply the updated deployment: `kubectl apply -f Deployment.yaml`
+- View Pod deployment:
+  - `kubectl get pods` - it is terminating the old ones and starting new ones.
+  - now go to view it: `http://mark-clonetrooper.biz.<someDomain>.com/quote` - it now only does Jar Jar Binks quotes, we need to roll back
+- View Rollout Revisions
+  - `kubectl rollout history deployment mark-clonetrooper`
+  - it should say there are two revisions 1 and 2.
+- View ReplicaSets
+  - `kubectl get replicaset`
+  - it should list two for mark-clonetrooper (one of them is currently deployed)
+  - `kubectl describe replicaset mark-clonetrooper-75c5d89547` (mark-clonetrooper-75c5d89547 is the old one not deployed)
+    - should see the version of the image here as 0.1 - we can confirm this is the one we want to roll back to. 
+    - we should also see: `deployment.kubernetes.io/revision: 1` - confirming revision 1 is the one we want to rollback to.
+- Perform rollback
+  - `kubectl rollout undo deployment mark-clonetrooper --to-revision=1` which spins up two new pods and deletes the old ones. 
+- Test rollback
+  - go back to url http://mark-clonetrooper.biz.<someDomain>.com/quote and see non-jarjar binks quotes!
+- View Rollouts
+  - `kubectl rollout history deployment mark-clonetrooper`
+  - theres now a revision 2 and 3 (revision 1 is promoted to revision 3)
+- Cleanup resources
+  - `kubectl delete ingress mark-clonetrooper`
+  - `kubectl delete service mark-clonetrooper`
+  - `kubectl delete deployment mark-clonetrooper`
+
+## Lab 5: Helm
