@@ -3,6 +3,7 @@
 - [Deployment](#lab-1-clone-trooper-deployment)
 - [Services](#lab-2-clone-trooper-service)
 - [Ingress](#lab-3-clone-trooper-ingress)
+- [Deployments part 2](#lab-4-deployments-part-2)
 
 ## Setup
 - confirm kubectl is installed `kubectl version` 
@@ -53,5 +54,17 @@
 
 ## Lab 3: Clone Trooper Ingress
 - Add ingress to our existing clone trooper service
+  - An ingress is used to route external HTTP(S) traffic to different services within a k8s cluster based on URL paths, hostnames or other rules. It acts as a reverse proxy that can be used to expose multiple services through a single external IP address. 
 - `cd lab-3`
-- 
+- Create the Ingress:
+  - `kubectl apply -f Ingress.yaml`
+- Check the Ingress
+  - `kubectl get ingress`
+  - note in the address you can see the ELB (elastic load balancer)'s url. Note that when accessing it though you'll use the HOSTS url.
+- Test Ingress 
+  - oopen the hosts URL in a browser: mark-clonetrooper.biz.<someDomain>.com/quote and you should see a quote 
+- Describe Ingress:
+  - `kubectl describe ingress mark-clonetrooper`
+  - the rules show the host mapped to the backend Service (i.e the Service.yaml from lab-2)
+
+## Lab 4: Deployments part 2

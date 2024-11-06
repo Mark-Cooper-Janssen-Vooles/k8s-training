@@ -8,7 +8,7 @@ metadata:
     app: mark-clonetrooper
 spec:
   rules:
-    - host: 
+    - host: mark-clonetrooper.biz.<SomeHost>.com
       http:
         paths:
           - path: /
