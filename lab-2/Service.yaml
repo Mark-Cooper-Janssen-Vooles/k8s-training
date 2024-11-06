@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mark-clonetrooper
+  labels:
+    app: mark-clonetrooper
+spec:
+  selector:
+    app: mark-clonetrooper
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080

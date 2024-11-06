@@ -1,0 +1,20 @@
+﻿apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mark-clonetrooper
+  annotations:
+    kubernetes.io/ingress.class: nginx
+  labels:
+    app: mark-clonetrooper
+spec:
+  rules:
+    - host: 
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: mark-clonetrooper
+                port:
+                  number: 80

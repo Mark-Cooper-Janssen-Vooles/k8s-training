@@ -1,5 +1,8 @@
 # k8s-training
 
+- [Deployment](#lab-1-clone-trooper-deployment)
+- [Services](#lab-2-clone-trooper-service)
+- [Ingress](#lab-3-clone-trooper-ingress)
 
 ## Setup
 - confirm kubectl is installed `kubectl version` 
@@ -31,3 +34,24 @@
 
 ## Lab 2: Clone Trooper Service
 - add a service to our existing Clone Trooper pods which we'll test
+  - in k8s a service is an abstraction that defines a logical set of Pods and a policy to access them
+  - it provides a stable endpoint (IP address and DNS name) for accessing a set of Pods, even when the pods are created and destroyed over time.
+- Make sure you're in the right kubectl context still + `cd lab-2`
+- Create the service:
+  - `kubectl apply -f Service.yaml`
+- Check your service:
+  - `kubectl get service`
+  - view pod endpoints attached to your service: `kubectl get endpoints mark-clonetrooper`
+  - see how the service selector matches the pod labels: `kubectl get pod --show-labels`
+  - run curl we can text our service: 
+    - `kubectl run -it --rm mark-curl --image=curlimages/curl --restart=Never -- sh`
+    - test service name: `curl http://mark-clonetrooper/quote`
+    - test service.namespace: `curl http://mark-clonetrooper.xerodashboard/quote`
+    - `exit`
+- Describe your service: 
+  - provides more info on the config of the service: `kubectl describe service mark-clonetrooper`
+
+## Lab 3: Clone Trooper Ingress
+- Add ingress to our existing clone trooper service
+- `cd lab-3`
+- 
