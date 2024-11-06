@@ -1,0 +1,29 @@
+﻿apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mark-clonetrooper
+  labels:
+    app: mark-clonetrooper
+spec:
+  selector:
+    matchLabels:
+      app: mark-clonetrooper
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: mark-clonetrooper
+    spec:
+      containers:
+      - name: mark-clonetrooper
+        image: <someImageToBeReplaced>/training/clonetrooper:0.1
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            cpu: 10m
+            memory: 20Mi
+          limits:
+            cpu: 20m
+            memory: 30Mi
