@@ -1,0 +1,22 @@
+# Default values for clonetrooper.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# These default values are designed to fail unless overwritten.
+name: default-clonetrooper
+image:
+  tag: 0.0
+  repo: {someurl}.com/training/default
+replicaCount: 2
+ingress:
+  enabled: true
+  hosts:
+  - default-clonetrooper.biz.{domain}.com
+containerPort: 8080
+resources:
+  requests:
+    cpu: 10m
+    memory: 20Mi
+  limits:
+    cpu: 20m
+    memory: 30Mi

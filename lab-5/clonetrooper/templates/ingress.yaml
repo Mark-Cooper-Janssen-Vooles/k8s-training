@@ -1,0 +1,24 @@
+{{- if .Values.ingress.enabled -}}  {{- /* Example of a Logic function */}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Values.name }}
+  annotations:
+    kubernetes.io/ingress.class: nginx
+  labels:
+    app: {{ .Values.name }}
+spec:
+  rules:
+  {{- range .Values.ingress.hosts }} {{- /* Iteration over yaml array of hostnames */}}
+    - host: {{ . | quote }} {{- /* "." = current hosts value, "quote" = add quotes to value. */}}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $.Values.name }}
+                port:
+                  number: 80
+  {{- end }}
+{{- end }}

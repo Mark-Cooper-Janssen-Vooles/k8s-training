@@ -1,0 +1,10 @@
+name: mark-clonetrooper
+image:
+  tag: 0.1
+  repo: {someurl}.com/training/clonetrooper
+replicaCount: 2
+ingress:
+  enabled: true
+  hosts:
+  - mark-clonetrooper.biz.{domain}.com
+containerPort: 8080

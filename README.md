@@ -14,6 +14,7 @@
 - also installed helm, can check `helm version`
 
 ## Lab 1: Clone Trooper Deployment
+- deploying an image as a k8s pod with replicas etc
 - `cd lab-1`
 - make sure you're in the right k8s context (and namespace)
   - i.e. set docker to use right context or run `kubectl config use-context <context>`
@@ -47,7 +48,7 @@
   - `kubectl get service`
   - view pod endpoints attached to your service: `kubectl get endpoints mark-clonetrooper`
   - see how the service selector matches the pod labels: `kubectl get pod --show-labels`
-  - run curl we can text our service: 
+  - run curl we can test our service: 
     - `kubectl run -it --rm mark-curl --image=curlimages/curl --restart=Never -- sh`
     - test service name: `curl http://mark-clonetrooper/quote`
     - test service.namespace: `curl http://mark-clonetrooper.xerodashboard/quote`
@@ -99,3 +100,42 @@
   - `kubectl delete deployment mark-clonetrooper`
 
 ## Lab 5: Helm
+- helm is used to help template an application 
+  - an example is the values.yml file
+  - values in yalues.yaml fie are injected into the templates folder
+  - a Chart is made up of a web-application (in this case ours is called 'clonetrooper', the folder)
+    - the chart.yaml contains basic info and metadata 
+    - values.yaml is the default values file (used unless overridden)
+    - the templates folder
+      - uses the values and generates valid k8s manifest files (covered in labs 1-4 above)
+
+- release the clonetrooper app as before but wrapped in a helm package 
+- Inspect chart:
+  - chart.yaml (the info file)
+  - values.yaml - the default values file (used in the files insid the templates folder)
+  - template - the template files which will become manifest files
+- the myvalues.yaml file overwrites the values.yaml file 
+- Preview Manifests
+  - cd `lab-5`
+  - previewing manifests follows the format: `helm template {name of release} {location of chart} -f {values}`
+  - to see what will be generated, `helm template mark-clonetrooper clonetrooper`
+    - the above pumps out just using the values.yaml, not our custom myvalues.yaml file.
+    - to use myvalues.yaml file: `helm template mark-clonetrooper clonetrooper -f myvalues.yaml`, and we now see it renamed. 
+- Release
+  - the format for releasing is `helm install {name of release} {location of chart} -f {values}`
+  - to release ours: `helm install mark-clonetrooper clonetrooper -f myvalues.yaml`
+  - should be viewable now: http://mark-clonetrooper.biz.{domain}.com/quote
+- Upgrade a release
+  - pass the image tag over the command line: `helm upgrade mark-clonetrooper clonetrooper -f myvalues.yaml --set image.tag=0.2`
+    - right-most values on the commandline will overwrite any other values. 
+    - Multiple values files are frequently used. Usually there will be a common values file for an app that covers things like name, port etc. Then another values file per environment, test/uat/prod. That is then deployed like so: `helm upgrade appname generic-chart -f common-values.yaml -f prod-values.yaml --set image.tag=0.2`
+      - prod-values.yaml will overwrite common-values.yaml and --set image overwrites both.
+  - the URL should now show jar jar binks quotes only
+- Rollback (using helm)
+  - view all helm releases: `helm list`
+  - view history of releases: `heml history mark-clonetrooper` // shows revision 1 and 2
+  - perform rollback: `helm rollback mark-clonetrooper 1`
+  - view rollback results: `helm history mark-clonetrooper` or `kubectl rollout history deployment mark-clonetrooper`
+- Cleanup resources (using helm)
+  - `helm uninstall mark-clonetrooper`
+    
