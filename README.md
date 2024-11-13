@@ -7,6 +7,7 @@
   - deploy an upgrade and roll it back
   - cleanup resources
 - [Helm](#lab-5-helm)
+- [Resources and autoscaling](#lab-6-resources-and-autoscaling)
 
 ## Setup
 - confirm kubectl is installed `kubectl version` 
@@ -51,7 +52,7 @@
   - run curl we can test our service: 
     - `kubectl run -it --rm mark-curl --image=curlimages/curl --restart=Never -- sh`
     - test service name: `curl http://mark-clonetrooper/quote`
-    - test service.namespace: `curl http://mark-clonetrooper.xerodashboard/quote`
+    - test service.namespace: `curl http://mark-clonetrooper/quote`
     - `exit`
 - Describe your service: 
   - provides more info on the config of the service: `kubectl describe service mark-clonetrooper`
@@ -138,4 +139,39 @@
   - view rollback results: `helm history mark-clonetrooper` or `kubectl rollout history deployment mark-clonetrooper`
 - Cleanup resources (using helm)
   - `helm uninstall mark-clonetrooper`
-    
+
+## Lab 6: Resources and autoscaling
+- version of helm you use needs to match k8s server version
+- 
+
+- this lab uses a php-apache app that performs CPU intensive operations for every page request to see the HPA (horizontal pod autoscaler) add more pods as the load increases, using a helm generic-chart to deploy it.
+- Update helm repos
+  - we need to add the generic-chart repo to Helm's supported repos: 
+````
+helm repo add helm-incubator https://{someurl}.com/helm-incubator
+
+helm repo update
+
+helm repo list
+# NAME            URL
+# helm-incubator  https://{someurl}.com/helm-incubator
+````
+- Release
+  - try running: `helm install mark-hpa-test generic-service --repo https://{someurl}.com/helm-incubator -f myvalues.yaml --set image.tag=0.1`
+  - helm displays a summary of the release and some notes 
+- View Results
+  - `kubectl get hpa` will show min pods, max pods and replicas 
+    - shows targets as 5%/50%, 23%/75% min pods 1, max pods 5, replicas 1
+      - note the replicas are what increase 
+    - 75% is the memory target (in the myvalues.yaml)
+    - 50% is the CPU target
+    - targets listed as current/target so 5% is current cpu usage, scale at 50%. and 23% current memory target, scale at 75%.
+  - `kubectl get pods` 
+  - `kubectl describe hpa mark-hpa-test` gives more info. 
+- Generate load
+  - we will run 'busybox' to query the service endpoint and generate load 
+  - run the command in another terminal to watch your HPA: `kubectl get hpa mark-hpa-test --watch`
+  - in the other terminal run `kubectl run -i --tty mark-busybox --rm --image=busybox --restart=Never -- /bin/sh -c "while sleep 0.01; do wget -q -O- http://mark-hpa-test; done"`
+  - as the targets for CPU go over 50%, the replicas should increase. as the replicas increase, the target should come down. it should show 5/5 replicas created.
+- Cleanup
+  - stop the busy box and run `helm uninstall mark-hpa-test`
