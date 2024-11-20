@@ -26,7 +26,7 @@
 - Test a pod:
   - Get the IP of the pod: `kubectl get pods -o wide`
   - run curl to test one of the pods: `kubectl run -it --rm mark-curl --image=curlimages/curl --restart=Never -- sh`
-    - this spins a new pod up, in this case called "mark", the `--rm` means to remove the pod after it exists, and to not restart it. the `sh` means to start an interactive shell session
+    - this spins a new pod up, in this case called "mark", the `--rm` means to remove the pod after it exits, and to not restart it. the `sh` means to start an interactive shell session
     - inside the shell session, run `curl <whatever one of the pods ip's were>:8080/quote`. it shouls respond with a quote.
     - `exit`
 - Delete a pod
@@ -142,8 +142,6 @@
 
 ## Lab 6: Resources and autoscaling
 - version of helm you use needs to match k8s server version
-- 
-
 - this lab uses a php-apache app that performs CPU intensive operations for every page request to see the HPA (horizontal pod autoscaler) add more pods as the load increases, using a helm generic-chart to deploy it.
 - Update helm repos
   - we need to add the generic-chart repo to Helm's supported repos: 
@@ -175,3 +173,10 @@ helm repo list
   - as the targets for CPU go over 50%, the replicas should increase. as the replicas increase, the target should come down. it should show 5/5 replicas created.
 - Cleanup
   - stop the busy box and run `helm uninstall mark-hpa-test`
+
+  ## Lab 7: Troubleshooting 
+  - after installing the service, `helm install mark-troubleshoot generic-service --repo https://{somerepo} -f myvalues.yaml` 
+    - get the pod name `kubectl get pods`
+    - check the logs `kubectl logs <podname>`
+    - fix the issues in the .yaml (typos, env variable missing) then uninstall `helm uninstall mark-troubleshoot` and reinstall 
+    - go to the url, success!
